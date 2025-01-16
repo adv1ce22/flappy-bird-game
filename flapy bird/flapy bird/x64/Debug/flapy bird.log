@@ -1,0 +1,5 @@
+﻿  flapy bird.cpp
+\\mkit-srv\redirectedfolders$\v.turich\Documents\GitHub\flappy-bird-game\flapy bird\flapy bird\flapy bird.cpp(9,18): warning C4838: Преобразование из "int" в "SHORT" требует сужающего преобразования.
+\\mkit-srv\redirectedfolders$\v.turich\Documents\GitHub\flappy-bird-game\flapy bird\flapy bird\flapy bird.cpp(9,21): warning C4838: Преобразование из "int" в "SHORT" требует сужающего преобразования.
+\\mkit-srv\redirectedfolders$\v.turich\Documents\GitHub\flappy-bird-game\flapy bird\flapy bird\flapy bird.cpp(29,13): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  flapy bird.vcxproj -> \\mkit-srv\redirectedfolders$\v.turich\Documents\GitHub\flappy-bird-game\flapy bird\x64\Debug\flapy bird.exe
