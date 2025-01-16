@@ -6,183 +6,207 @@
 using namespace std;
 
 void goToXY(int x, int y) {
-	COORD coord = { x, y };
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+    COORD coord = { x, y };
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
 const int hurdleCount = 4;
 
 class Flappy_Bird {
-	int hurdlePos[hurdleCount][2];
-	int screenWidth = 79;
-	int screenHeight = 25;
-	int hurdleGap = 8;
-	int betweenHurdleGap;
+    int hurdlePos[hurdleCount][2];
+    int screenWidth = 79;
+    int screenHeight = 25;
+    int hurdleGap = 8;  // Уменьшили расстояние между верхним и нижним столбцом до 8
+    int betweenHurdleGap;
 
-	int birdX = 17;
-	int birdY = 15;
+    int birdX = 17;
+    int birdY = 15;
 
-	int jump = 3;
-	int score = 0;
+    int jump = 3;
+    int score = 0;
+    bool passed[hurdleCount] = { false }; // Массив, чтобы отслеживать, прошла ли птица столбец
 public:
-	Flappy_Bird() {
-		srand(time(NULL));
+    Flappy_Bird() {
+        srand(time(NULL));
 
-		betweenHurdleGap = (screenWidth / hurdleCount) + 10;
-		for (int i = 0; i < hurdleCount; i++) {
-			hurdlePos[i][0] = betweenHurdleGap * (i + 1);
+        betweenHurdleGap = (screenWidth / hurdleCount) + 10;
+        for (int i = 0; i < hurdleCount; i++) {
+            hurdlePos[i][0] = betweenHurdleGap * (i + 1);
 
-			int breakPos = rand() % (screenHeight / 3) + hurdleGap;
-			hurdlePos[i][1] = breakPos;
-		}
-	}
+            int breakPos = rand() % (screenHeight / 3) + hurdleGap;
+            hurdlePos[i][1] = breakPos;
+        }
+    }
 
-	void printHurdle() {
-		int count = 0;
-		for (int i = 0; i < hurdleCount; i++) {
-			for (int j = 0; j < screenHeight; j++) {
+    void printHurdle() {
+        int count = 0;
+        for (int i = 0; i < hurdleCount; i++) {
+            for (int j = 0; j < screenHeight; j++) {
 
-				if (hurdlePos[i][1] == j) count = hurdleGap;
+                if (hurdlePos[i][1] == j) count = hurdleGap;
 
-				if (count == 0) {
-					if (hurdlePos[i][0] < screenWidth) {
-						goToXY(hurdlePos[i][0] + 1, j);
-						cout << " ";
+                if (count == 0) {
+                    if (hurdlePos[i][0] < screenWidth) {
+                        goToXY(hurdlePos[i][0] + 1, j);
+                        cout << " ";
 
-						goToXY(hurdlePos[i][0], j);
-						cout << i;
-					}
-				}
-				else {
-					if ((count == 1 || count == hurdleGap) && hurdlePos[i][0] < screenWidth) {
-						if (hurdlePos[i][0] + 1 > 0) {
-							goToXY(hurdlePos[i][0] + 1, j);
-							cout << "   ";
-						}
+                        goToXY(hurdlePos[i][0], j);
+                        cout << i;
+                    }
+                }
+                else {
+                    if ((count == 1 || count == hurdleGap) && hurdlePos[i][0] < screenWidth) {
+                        if (hurdlePos[i][0] + 1 > 0) {
+                            goToXY(hurdlePos[i][0] + 1, j);
+                            cout << "   ";
+                        }
 
-						if (hurdlePos[i][0] - 1 > 0) {
-							goToXY(hurdlePos[i][0] - 1, j);
-							cout << "===";
-						}
-					}
+                        if (hurdlePos[i][0] - 1 > 0) {
+                            goToXY(hurdlePos[i][0] - 1, j);
+                            cout << "===";
+                        }
+                    }
 
-					count--;
-				}
-			}
+                    count--;
+                }
+            }
 
-			hurdlePos[i][0]--;
+            hurdlePos[i][0]--;
 
-			if (hurdlePos[i][0] == -1) {
-				int prev;
-				if (i == 0)
-					prev = hurdleCount - 1;
-				else
-					prev = i - 1;
+            if (hurdlePos[i][0] == -1) {
+                int prev;
+                if (i == 0)
+                    prev = hurdleCount - 1;
+                else
+                    prev = i - 1;
 
-				hurdlePos[i][0] = hurdlePos[prev][0] + betweenHurdleGap;
+                hurdlePos[i][0] = hurdlePos[prev][0] + betweenHurdleGap;
 
-				int breakPos = rand() % (screenHeight / 3) + hurdleGap;
-				hurdlePos[i][1] = breakPos;
+                int breakPos = rand() % (screenHeight / 3) + hurdleGap;
+                hurdlePos[i][1] = breakPos;
 
-				for (int i = 0; i < screenHeight; i++) {
-					goToXY(0, i);
-					cout << " ";
-				}
-			}
-		}
-	}
+                for (int i = 0; i < screenHeight; i++) {
+                    goToXY(0, i);
+                    cout << " ";
+                }
+            }
+        }
+    }
 
-	bool collisionCheck() {
-		if (birdY == 0 || birdY + 3 == screenHeight) return true;
+    bool collisionCheck() {
+        if (birdY == 0 || birdY + 3 == screenHeight) return true;
 
-		for (int i = 0; i < hurdleCount; i++) {
-			if (
-				hurdlePos[i][0] == birdX &&
-				(
-					birdY >= hurdlePos[i][1] ||
-					birdY + 3 <= (hurdlePos[i][1] + hurdleGap)
-					)
-				) {
-				score++;
-			}
+        for (int i = 0; i < hurdleCount; i++) {
+            if (hurdlePos[i][0] >= birdX - 5 && hurdlePos[i][0] <= birdX) {
+                if (birdY <= hurdlePos[i][1] || birdY + 3 >= (hurdlePos[i][1] + hurdleGap)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-			if (hurdlePos[i][0] >= birdX - 5 &&
-				hurdlePos[i][0] <= birdX &&
-				(
-					birdY <= hurdlePos[i][1] ||
-					birdY + 3 >= (hurdlePos[i][1] + hurdleGap)
-					)
-				) {
-				return true;
-			}
-		}
-		return false;
-	}
+    void clearBird() {
+        goToXY(birdX - 5, birdY);
+        cout << "   ";
+        goToXY(birdX - 5, birdY + 1);
+        cout << "      ";
+        goToXY(birdX - 5, birdY + 2);
+        cout << "       ";
+    }
 
-	void clearBird() {
-		goToXY(birdX - 5, birdY);
-		cout << "   ";
-		goToXY(birdX - 5, birdY + 1);
-		cout << "      ";
-		goToXY(birdX - 5, birdY + 2);
-		cout << "       ";
-	}
+    void printScore() {
+        goToXY(0, screenHeight + 4);
+        cout << "Score: " << score;
+    }
 
-	void printScore() {
-		goToXY(0, screenHeight + 4);
-		cout << "Score: " << score;
-	}
+    void printBird() {
+        goToXY(birdX - 5, birdY);        cout << " __";
+        goToXY(birdX - 5, birdY + 1);    cout << "/-/o\\";
+        goToXY(birdX - 5, birdY + 2);    cout << "\\_\\-/";
+    }
 
-	void printBird() {
-		goToXY(birdX - 5, birdY);		cout << " __";
-		goToXY(birdX - 5, birdY + 1);	cout << "/-/o\\";
-		goToXY(birdX - 5, birdY + 2);		cout << "\\_\\-/";
-	}
+    void printRoad() {
+        for (int i = 0; i <= screenWidth; i++) {
+            goToXY(i, screenHeight);        cout << "_";
+            goToXY(i, screenHeight + 1);    cout << "/";
+            goToXY(i, screenHeight + 2);    cout << "=";
+        }
+    }
 
-	void printRoad() {
-		for (int i = 0; i <= screenWidth; i++) {
-			goToXY(i, screenHeight);		cout << "_";
-			goToXY(i, screenHeight + 1);	cout << "/";
-			goToXY(i, screenHeight + 2);	cout << "=";
-		}
-	}
+    void play() {
+        printRoad();
 
-	void play() {
-		printRoad();
-		int someDelay = 0;
-		while (true) {
-			if (GetAsyncKeyState(VK_SPACE)) {
-				birdY -= jump;
-			}
+        int someDelay = 0;
+        float velocity = 0;         // Скорость птицы
+        const float gravity = 0.75;  // Постоянная гравитация
+        const float jumpForce = -2; // Сила прыжка (отрицательное значение - вверх)
+        const float maxVelocity = 2; // Максимальная скорость падения
 
-			printHurdle();
-			printBird();
-			printScore();
+        bool isJumping = false;     // Флаг для отслеживания прыжка
 
-			if (collisionCheck()) break;
+        while (true) {
+            // Обработка нажатия пробела для плавного взлета
+            if (GetAsyncKeyState(VK_SPACE) & 0x8000 && birdY < screenHeight - 3) {
+                velocity = jumpForce; // Устанавливаем скорость прыжка
+                isJumping = true; // Отмечаем, что прыжок начался
+            }
 
-			Sleep(100);
-			clearBird();
-			birdY += 1;
-		}
-	}
+            // Обновляем положение птицы
+            birdY += static_cast<int>(velocity);
+
+            // Применяем гравитацию, ограничиваем максимальную скорость
+            velocity += gravity;
+            if (velocity > maxVelocity) {
+                velocity = maxVelocity;
+            }
+
+            // Если птица достигла нижней части экрана, она больше не может прыгать
+            if (birdY >= screenHeight - 3) {
+                birdY = screenHeight - 3;
+                isJumping = false;  // Сбрасываем флаг после приземления
+            }
+
+            // Отрисовываем препятствия, птицу и счёт
+            printHurdle();
+            printBird();
+            printScore();
+
+            // Проверка на столкновение
+            if (collisionCheck()) break;
+
+            // Засчитываем очки, если птица прошла столбец
+            for (int i = 0; i < hurdleCount; i++) {
+                if (!passed[i] && hurdlePos[i][0] < birdX - 5) {
+                    passed[i] = true;
+                    score++; // Засчитываем очко
+                }
+            }
+
+            // Задержка для сглаживания игры
+            Sleep(50);
+
+            // Очистка предыдущей позиции птицы
+            clearBird();
+        }
+    }
 };
 
 int main() {
 
-	while (true) {
-		Flappy_Bird fb;
-		fb.play();
-		goToXY(30, 30);
-		cout << "Do you want to play again? (Y/N)";
+    while (true) {
+        Flappy_Bird fb;
+        fb.play();
+        goToXY(30, 30);
+        cout << "Do you want to play again? (Y/N)";
 
-		char ch;
-		cin >> ch;
-		if (ch == 'N' || ch == 'n') {
-			break;
-		}
-		system("cls");
-	}
+        char ch;
+        cin >> ch;
+        if (ch == 'N' || ch == 'n') {
+            break;
+        }
+        system("cls");
+    }
 
-	return 0;
+    return 0;
 }
